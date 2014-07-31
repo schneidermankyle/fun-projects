@@ -13,12 +13,6 @@
 using namespace std;
 
 const double PI = 3.14;
-// Game object interface
-class IGameObject {
-public:
-    virtual int getId() = 0;
-    virtual void update() = 0;
-};
 
 // Our shape interface class, as denoted by leading I
 class IShape {
@@ -33,44 +27,9 @@ public:
     
 };
 
-// We create an engine responsible for updating and rendering objects out
-class Engine {
-private:
-    // Instantiate a blank vector of gameobject pointers
-    vector<IGameObject*> _gameObjects;
-    
-public:
-    // We take the pointer of the passed in game object and push it in to the vector
-    void add(IGameObject* gameObject) {
-        _gameObjects.push_back(gameObject);
-    }
-    
-    // When update is called, we loop through all the game objects and call the shapes update method
-    void update() {
-        for (auto i = _gameObjects.begin(); i != _gameObjects.end(); i++) {
-            (*i)->update();
-        }
-    }
-    
-    // When render is called, we loop through all the objects in the vector and process them
-    void render() {
-        for (auto i = _gameObjects.begin(); i != _gameObjects.end(); i++) {
-            // We check to see if current object in vector is a shape so we can render it out
-            auto shape = dynamic_cast<IShape*>(*i);
-            // If shape cannot be casted and returns NULL, skip it
-            if (shape == NULL) {
-                continue;
-            }
-            
-            cout << "Rendering shape with area: " << shape->getArea() << "\n";
-        }
-    }
-    
-
-};
 
 // Our rectangle class that is an extension of IShape
-class Rectangle : public IShape, public IGameObject {
+class Rectangle : public IShape {
 private:
     double _height;
     double _width;
@@ -92,17 +51,11 @@ public:
 };
 
 // Our square class that is an extension of IShape
-class Square : public IShape, public IGameObject {
+class Square : public IShape {
 private:
     double _width;
     
 public:
-    // For game render demonstration
-    virtual int getId() { return 0; }
-    virtual void update() {
-        _width -= 5;
-    }
-    
     // Similar to above, we are simply adding some extra functionaility
     void setWidth(double width){ _width = width; }
     
@@ -112,17 +65,11 @@ public:
 };
 
 // Lastly our circle class that is also an extension of IShape
-class Circle : public IShape, public IGameObject {
+class Circle : public IShape {
 private:
     double _radius;
     
 public:
-    // For game render demonstration
-    virtual int getId() { return 0; }
-    virtual void update() {
-        _radius += 2;
-    }
-    
     double getRadius() { return _radius; }
     void setRadius(double rad) { _radius = rad; }
     
@@ -130,55 +77,92 @@ public:
     virtual double getArea() { return PI * _radius * _radius; }
 };
 
-// Quick class to add a non shape object for demonstrations
-class Player : public IGameObject {
-public:
-    virtual int getId(){ return 0; }
-    
-    virtual void update() {
-        cout << "Doing something\n";
-    }
-};
 
 // displaySummary looks for a pointer to type shape and then summarizes the information we set through children classes
 void displaySummary(IShape* shape) {
     cout << "Or in summation, this shape has " << shape->getCorners() << " corners and an area of " << shape->getArea() << "\n\n\n";
 }
 
-// Quick demonstration of how we can set and call information through proper interfaces
+// Quick demonstration of how we can set and call information through interface
 int main()
 {
+    double input;
+    int choice;
+    bool done = false;
     
-    Rectangle r1, r2;
-    Square s1;
-    Circle c1, c2;
-    Player p1;
+    // There are better ways to call and set up your classes, however this will work for this simple demo
+    Circle circle;
+    Square square;
+    Rectangle rectangle;
     
-    r1.setWidth(100); r1.setHeight(30);
-    r2.setWidth(500); r2.setHeight(4000);
-    
-    s1.setWidth(450);
-    
-    c1.setRadius(10);
-    c2.setRadius(25);
-    
-    Engine engine;
-    engine.add(&r1);
-    engine.add(&r2);
-    engine.add(&s1);
-    engine.add(&c1);
-    engine.add(&c2);
-    engine.add(&p1);
-    
-    // Infinate loop to show what's happening in the engine
-    while (true) {
-        engine.update();
-        engine.render();
+    // As long as user wants to continue, keep looping
+    while (!done) {
+        cout << "What type of shape would you like to calculate?\n";
+        cout << "1: Circle\n";
+        cout << "2: Rectangle\n";
+        cout << "3: Square\n";
+        cout << "0: To exit\n";
         
-        cout << "Press enter\n";
-        cin.get();
+        cin >> choice;
+        
+        switch (choice) {
+            case 1:
+                cout << "Ok great! What is the radius of your cicle? \n";
+                cin >> input;
+                
+                // Set the circle's radius by user input
+                circle.setRadius(input);
+                cout << "The area of your circle is: " << circle.getArea() << " \n";
+                
+                // Grab our summary.
+                displaySummary(&circle);
+                
+                break;
+                
+            case 2:
+                
+                cout << "Ok great! What is the height of your rectangle? \n";
+                cin >> input;
+                
+                rectangle.setHeight(input);
+                
+                cout << "How about the width of your Rectangle? \n";
+                cin >> input;
+                
+                rectangle.setWidth(input);
+                
+                cout << "The area of your rectangle is: " << rectangle.getArea() << " \n";
+                
+                displaySummary(&rectangle);
+                
+                break;
+                
+                
+            case 3:
+                cout << "Ok great! What is the width of your square? \n";
+                cin >> input;
+                
+                square.setWidth(input);
+                
+                cout << "Graet! the area of your square is: " << square.getArea() << " \n";
+                
+                displaySummary(&square);
+                
+                break;
+                
+            case 0:
+                cout << "Thanks for playing along! \n";
+                
+                done = true;
+                break;
+            default:
+                cout << "Error that was not a choice \n";
+                
+                break;
+        }
     }
     
+    cin.get();
     return 0;
 }
 
